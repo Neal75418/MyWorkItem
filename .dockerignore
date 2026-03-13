@@ -1,0 +1,10 @@
+**/bin/
+**/obj/
+tests/
+.git/
+.idea/
+.vs/
+*.md
+*.user
+*.suo
+.DS_Store
