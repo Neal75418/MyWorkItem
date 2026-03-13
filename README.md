@@ -2,40 +2,40 @@
 
 [![CI](https://github.com/Neal75418/MyWorkItem/actions/workflows/ci.yml/badge.svg)](https://github.com/Neal75418/MyWorkItem/actions/workflows/ci.yml)
 
-.NET 10 Web API — users view and confirm work items with personalized status; admins manage items via CRUD.
+.NET 10 Web API — 使用者檢視並確認工作項目（個人化狀態）；管理員透過 CRUD 管理項目。
 
-## Quick Start
+## 快速啟動
 
 ### Docker Compose
 
-Starts frontend + API + PostgreSQL with zero dependencies:
+零依賴，一鍵啟動前端 + API + PostgreSQL：
 
 ```bash
 docker compose up --build
 ```
 
-Open **http://localhost:3080**. Database auto-migrates and seeds demo data on first run.
+開啟 **http://localhost:3080**，資料庫首次啟動時自動 migrate 並寫入示範資料。
 
-### Local Development
+### 本機開發
 
-Prerequisites: [.NET 10 SDK](https://dotnet.microsoft.com/download), PostgreSQL
+前置需求：[.NET 10 SDK](https://dotnet.microsoft.com/download)、PostgreSQL
 
 ```bash
 cd src/MyWorkItem.Api
 dotnet run
 ```
 
-API at **http://localhost:5045** · OpenAPI spec at `/openapi/v1.json`
+API：**http://localhost:5045** · OpenAPI：`/openapi/v1.json`
 
-## Demo Accounts
+## 示範帳號
 
-| Username | Password | Role |
-|----------|----------|------|
+| 帳號 | 密碼 | 角色 |
+|------|------|------|
 | `admin` | `admin123` | Admin |
 | `user1` | `user123` | User |
 | `user2` | `user123` | User |
 
-## Architecture
+## 架構
 
 ```mermaid
 graph LR
@@ -52,61 +52,61 @@ graph LR
     linkStyle default stroke:#8ab4f8,stroke-width:2px
 ```
 
-Dependency direction: `Api → Application ← Infrastructure`, both depend on `Domain`.
+依賴方向：`Api → Application ← Infrastructure`，兩者皆依賴 `Domain`。
 
-## API Endpoints
+## API 端點
 
-| Method | Path | Description | Auth |
-|--------|------|-------------|------|
-| POST | `/api/auth/login` | Login, returns JWT | — |
-| GET | `/api/auth/me` | Current user info | Bearer |
-| GET | `/api/work-items` | List with personal status | Bearer |
-| GET | `/api/work-items/{id}` | Detail | Bearer |
-| POST | `/api/work-items/confirm` | Batch confirm | Bearer |
-| PATCH | `/api/work-items/{id}/unconfirm` | Undo confirm | Bearer |
-| GET | `/api/admin/work-items` | Admin list | Admin |
-| POST | `/api/admin/work-items` | Create | Admin |
-| PUT | `/api/admin/work-items/{id}` | Update | Admin |
-| DELETE | `/api/admin/work-items/{id}` | Delete | Admin |
+| 方法 | 路徑 | 說明 | 認證 |
+|------|------|------|------|
+| POST | `/api/auth/login` | 登入，回傳 JWT | — |
+| GET | `/api/auth/me` | 目前使用者資訊 | Bearer |
+| GET | `/api/work-items` | 列表（含個人狀態） | Bearer |
+| GET | `/api/work-items/{id}` | 詳情 | Bearer |
+| POST | `/api/work-items/confirm` | 批次確認 | Bearer |
+| PATCH | `/api/work-items/{id}/unconfirm` | 撤銷確認 | Bearer |
+| GET | `/api/admin/work-items` | 管理列表 | Admin |
+| POST | `/api/admin/work-items` | 新增 | Admin |
+| PUT | `/api/admin/work-items/{id}` | 修改 | Admin |
+| DELETE | `/api/admin/work-items/{id}` | 刪除 | Admin |
 
-> Query params (GET `/api/work-items`): `sortBy` (`createdAt` | `title`), `sortDir` (`desc` | `asc`)
+> 查詢參數（GET `/api/work-items`）：`sortBy`（`createdAt` | `title`）、`sortDir`（`desc` | `asc`）
 >
-> Full spec: [docs/api-spec.md](docs/api-spec.md)
+> 完整規格：[docs/api-spec.md](docs/api-spec.md)
 
-## Tech Stack
+## 技術棧
 
-| Component | Technology |
-|-----------|------------|
-| Runtime | ASP.NET Core (.NET 10) |
-| Database | PostgreSQL 18 · EF Core · Npgsql |
-| Auth | JWT Bearer · BCrypt |
-| Architecture | Clean Architecture (4 layers) |
-| Tests | xUnit · NSubstitute · EF InMemory (20 tests) |
+| 元件 | 技術 |
+|------|------|
+| 執行環境 | ASP.NET Core（.NET 10） |
+| 資料庫 | PostgreSQL 18 · EF Core · Npgsql |
+| 認證 | JWT Bearer · BCrypt |
+| 架構 | Clean Architecture（四層） |
+| 測試 | xUnit · NSubstitute · EF InMemory（20 tests） |
 | DevOps | Docker Compose · GitHub Actions |
 
-## Tests
+## 測試
 
 ```bash
 dotnet test
 ```
 
-20 unit tests covering `AuthService` (6) and `WorkItemService` (14).
+20 個 unit tests，涵蓋 `AuthService`（6）和 `WorkItemService`（14）。
 
-## Design Decisions
+## 關鍵設計決策
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Per-user status | Lazy creation (no record = Pending) | No background jobs needed |
-| Password hash | BCrypt | Industry standard |
-| Auth | JWT, 24h expiry | Stateless, SPA-friendly |
-| Delete | Hard delete | Interview scope |
+| 決策 | 選擇 | 理由 |
+|------|------|------|
+| 個人化狀態 | 延遲建立（無紀錄 = Pending） | 不需背景作業 |
+| 密碼雜湊 | BCrypt | 業界標準 |
+| 認證 | JWT，24 小時過期 | 無狀態，適合 SPA |
+| 刪除策略 | 硬刪除 | 面試範圍，保持簡潔 |
 
-## Documentation
+## 文件
 
-- [API Specification](docs/api-spec.md)
-- [Architecture Diagrams (C4)](docs/c4-diagrams.md)
-- [Database Schema](docs/database-schema.md)
+- [API 規格](docs/api-spec.md)
+- [架構圖（C4）](docs/c4-diagrams.md)
+- [資料庫 Schema](docs/database-schema.md)
 
-## Related
+## 相關專案
 
-Frontend: **[my-work-item-web](https://github.com/Neal75418/my-work-item-web)**
+前端：**[my-work-item-web](https://github.com/Neal75418/my-work-item-web)**
