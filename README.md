@@ -1,118 +1,112 @@
-# My Work Item — 後端 API
+# MyWorkItem API
 
-.NET 10 Web API，提供「My Work Item」應用的後端服務。使用者可檢視並管理個人工作項目狀態，管理員可進行 CRUD 操作。
+[![CI](https://github.com/Neal75418/MyWorkItem/actions/workflows/ci.yml/badge.svg)](https://github.com/Neal75418/MyWorkItem/actions/workflows/ci.yml)
 
-## 技術棧
+.NET 10 Web API — users view and confirm work items with personalized status; admins manage items via CRUD.
 
-| 元件 | 技術 | 版本 |
-|------|------|------|
-| 執行環境 | ASP.NET Core Web API | .NET 10 |
-| 資料庫 | PostgreSQL + EF Core (Npgsql) | PostgreSQL 18 |
-| 認證 | JWT Bearer Token | — |
-| 密碼雜湊 | BCrypt | — |
-| 架構 | Clean Architecture（四層） | — |
+## Quick Start
 
-## 架構分層
+### Docker Compose
 
-```
-MyWorkItem.Api              → Controllers、Program.cs、Middleware
-MyWorkItem.Application      → Services、DTOs、Interfaces
-MyWorkItem.Domain           → Entities、Enums（零依賴）
-MyWorkItem.Infrastructure   → EF Core DbContext、JWT/BCrypt Services
-```
-
-依賴方向：`Api → Application ← Infrastructure → Domain`
-
-## 前置需求
-
-- [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- PostgreSQL（本地，Port 5432）
-
-## 快速啟動
+Starts frontend + API + PostgreSQL with zero dependencies:
 
 ```bash
-# 1. 進入專案目錄
-cd MyWorkItem
+docker compose up --build
+```
 
-# 2. 啟動 API（自動建立資料庫 + 資料表 + 種子資料）
+Open **http://localhost:3080**. Database auto-migrates and seeds demo data on first run.
+
+### Local Development
+
+Prerequisites: [.NET 10 SDK](https://dotnet.microsoft.com/download), PostgreSQL
+
+```bash
 cd src/MyWorkItem.Api
 dotnet run
 ```
 
-API 啟動於 **http://localhost:5045**。
+API at **http://localhost:5045** · OpenAPI spec at `/openapi/v1.json`
 
-資料庫 `my_work_item` 會在首次啟動時透過 EF Core Migration **自動建立**，無需手動執行 SQL。
+## Demo Accounts
 
-## 示範帳號
+| Username | Password | Role |
+|----------|----------|------|
+| `admin` | `admin123` | Admin |
+| `user1` | `user123` | User |
+| `user2` | `user123` | User |
 
-| 帳號 | 密碼 | 角色 | 顯示名稱 |
-|------|------|------|----------|
-| admin | admin123 | Admin | Admin User |
-| user1 | user123 | User | Alice Wang |
-| user2 | user123 | User | Bob Chen |
+## Architecture
 
-## API 端點
+```mermaid
+graph LR
+    Api["Api\nControllers · Program.cs"] --> App["Application\nServices · DTOs · Interfaces"]
+    Infra["Infrastructure\nEF Core · JWT · BCrypt"] --> App
+    App --> Domain["Domain\nEntities · Enums"]
+    Infra --> Domain
 
-### 認證
+    style Api fill:#4a9eff,stroke:#2d7dd2,color:#fff
+    style App fill:#6cb4ee,stroke:#4a9eff,color:#fff
+    style Infra fill:#6cb4ee,stroke:#4a9eff,color:#fff
+    style Domain fill:#5b8c5a,stroke:#3d6b3d,color:#fff
 
-| 方法 | 路徑 | 說明 | 認證 |
-|------|------|------|------|
-| POST | `/api/auth/login` | 登入，回傳 JWT | 否 |
-| GET | `/api/auth/me` | 取得目前使用者資訊 | 需要 |
-
-### 工作項目（前台使用者）
-
-| 方法 | 路徑 | 說明 | 認證 |
-|------|------|------|------|
-| GET | `/api/work-items` | 列表（含個人狀態） | 需要 |
-| GET | `/api/work-items/{id}` | 詳情（含個人狀態） | 需要 |
-| POST | `/api/work-items/confirm` | 批次確認 | 需要 |
-| PATCH | `/api/work-items/{id}/unconfirm` | 撤銷單項確認 | 需要 |
-
-**查詢參數**（GET `/api/work-items`）：
-- `sortBy` — `createdAt`（預設）或 `title`
-- `sortDir` — `desc`（預設）或 `asc`
-
-### 管理（需 Admin 角色）
-
-| 方法 | 路徑 | 說明 | 認證 |
-|------|------|------|------|
-| GET | `/api/admin/work-items` | 管理列表 | Admin |
-| POST | `/api/admin/work-items` | 新增 | Admin |
-| PUT | `/api/admin/work-items/{id}` | 修改 | Admin |
-| DELETE | `/api/admin/work-items/{id}` | 刪除 | Admin |
-
-### OpenAPI
-
-執行時可存取：`http://localhost:5045/openapi/v1.json`
-
-## 組態設定
-
-連線字串與 JWT 設定位於 `appsettings.Development.json`：
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Database=my_work_item;Username=nealchen"
-  },
-  "Jwt": {
-    "Key": "ThisIsASecretKeyForDevelopmentOnlyAtLeast32Characters!",
-    "Issuer": "MyWorkItem",
-    "Audience": "MyWorkItemApp"
-  }
-}
+    linkStyle default stroke:#8ab4f8,stroke-width:2px
 ```
 
-## 關鍵設計決策
+Dependency direction: `Api → Application ← Infrastructure`, both depend on `Domain`.
 
-| 決策 | 選擇 | 理由 |
-|------|------|------|
-| 個人化狀態 | 延遲建立（無紀錄 = Pending） | 簡單，不需背景作業 |
-| 密碼雜湊 | BCrypt | 業界標準，安全可靠 |
-| 認證 | JWT（24 小時過期） | 無狀態，適合 SPA 架構 |
-| 刪除策略 | 硬刪除 | 面試範圍，保持簡潔 |
-| 架構 | Clean Architecture 四層 | 展示關注點分離 |
+## API Endpoints
 
-## 前端專案
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
+| POST | `/api/auth/login` | Login, returns JWT | — |
+| GET | `/api/auth/me` | Current user info | Bearer |
+| GET | `/api/work-items` | List with personal status | Bearer |
+| GET | `/api/work-items/{id}` | Detail | Bearer |
+| POST | `/api/work-items/confirm` | Batch confirm | Bearer |
+| PATCH | `/api/work-items/{id}/unconfirm` | Undo confirm | Bearer |
+| GET | `/api/admin/work-items` | Admin list | Admin |
+| POST | `/api/admin/work-items` | Create | Admin |
+| PUT | `/api/admin/work-items/{id}` | Update | Admin |
+| DELETE | `/api/admin/work-items/{id}` | Delete | Admin |
 
-React SPA 前端：請參閱 [my-work-item-web](../WebstormProjects/my-work-item-web/) 專案。
+> Query params (GET `/api/work-items`): `sortBy` (`createdAt` | `title`), `sortDir` (`desc` | `asc`)
+>
+> Full spec: [docs/api-spec.md](docs/api-spec.md)
+
+## Tech Stack
+
+| Component | Technology |
+|-----------|------------|
+| Runtime | ASP.NET Core (.NET 10) |
+| Database | PostgreSQL 18 · EF Core · Npgsql |
+| Auth | JWT Bearer · BCrypt |
+| Architecture | Clean Architecture (4 layers) |
+| Tests | xUnit · NSubstitute · EF InMemory (20 tests) |
+| DevOps | Docker Compose · GitHub Actions |
+
+## Tests
+
+```bash
+dotnet test
+```
+
+20 unit tests covering `AuthService` (6) and `WorkItemService` (14).
+
+## Design Decisions
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Per-user status | Lazy creation (no record = Pending) | No background jobs needed |
+| Password hash | BCrypt | Industry standard |
+| Auth | JWT, 24h expiry | Stateless, SPA-friendly |
+| Delete | Hard delete | Interview scope |
+
+## Documentation
+
+- [API Specification](docs/api-spec.md)
+- [Architecture Diagrams (C4)](docs/c4-diagrams.md)
+- [Database Schema](docs/database-schema.md)
+
+## Related
+
+Frontend: **[my-work-item-web](https://github.com/Neal75418/my-work-item-web)**
