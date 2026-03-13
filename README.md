@@ -39,9 +39,9 @@ API：**http://localhost:5045** · OpenAPI：`/openapi/v1.json`
 
 ```mermaid
 graph LR
-    Api["Api\nControllers · Program.cs"] --> App["Application\nServices · DTOs · Interfaces"]
-    Infra["Infrastructure\nEF Core · JWT · BCrypt"] --> App
-    App --> Domain["Domain\nEntities · Enums"]
+    Api["Api<br/>Controllers · Program.cs"] --> App["Application<br/>Services · DTOs · Interfaces"]
+    Infra["Infrastructure<br/>EF Core · JWT · BCrypt"] --> App
+    App --> Domain["Domain<br/>Entities · Enums"]
     Infra --> Domain
 
     style Api fill:#4a9eff,stroke:#2d7dd2,color:#fff

@@ -4,14 +4,14 @@
 
 ```mermaid
 graph TB
-    User["前台使用者\n（瀏覽器）"]
-    Admin["管理員\n（瀏覽器）"]
-    System["MyWorkItem 系統\n檢視、勾選、確認工作項目\n支援個人化狀態"]
-    DB[("PostgreSQL\n資料庫")]
+    User["前台使用者<br/>（瀏覽器）"]
+    Admin["管理員<br/>（瀏覽器）"]
+    System["MyWorkItem 系統<br/>檢視、勾選、確認工作項目<br/>支援個人化狀態"]
+    DB[("PostgreSQL<br/>資料庫")]
 
-    User -->|"檢視與確認\n工作項目"| System
-    Admin -->|"管理工作項目\nCRUD 操作"| System
-    System -->|"讀寫使用者資料\n項目與狀態"| DB
+    User -->|"檢視與確認<br/>工作項目"| System
+    Admin -->|"管理工作項目<br/>CRUD 操作"| System
+    System -->|"讀寫使用者資料<br/>項目與狀態"| DB
 
     style User fill:#4a9eff,stroke:#2d7dd2,color:#fff
     style Admin fill:#4a9eff,stroke:#2d7dd2,color:#fff
@@ -26,21 +26,21 @@ graph TB
 ```mermaid
 graph TB
     subgraph browser["瀏覽器"]
-        SPA["React SPA\nTypeScript · MUI · React Query\n\n提供工作項目列表、詳情\n及管理介面"]
+        SPA["React SPA<br/>TypeScript · MUI · React Query<br/><br/>提供工作項目列表、詳情<br/>及管理介面"]
     end
 
     subgraph server["應用伺服器"]
-        Nginx["Nginx\n反向代理\n\n提供靜態檔案\n將 /api/* 轉發至 API"]
-        API["ASP.NET Core Web API\n.NET 10 · C#\n\n處理認證、商業邏輯\n與資料存取"]
+        Nginx["Nginx<br/>反向代理<br/><br/>提供靜態檔案<br/>將 /api/* 轉發至 API"]
+        API["ASP.NET Core Web API<br/>.NET 10 · C#<br/><br/>處理認證、商業邏輯<br/>與資料存取"]
     end
 
     subgraph datastore["資料儲存"]
-        PG[("PostgreSQL 18\n\n儲存使用者、工作項目\n與個人化狀態")]
+        PG[("PostgreSQL 18<br/><br/>儲存使用者、工作項目<br/>與個人化狀態")]
     end
 
-    SPA -->|"HTTP/JSON\nJWT Bearer 認證"| Nginx
-    Nginx -->|"/api/*\n反向代理"| API
-    API -->|"EF Core\nNpgsql"| PG
+    SPA -->|"HTTP/JSON<br/>JWT Bearer 認證"| Nginx
+    Nginx -->|"/api/*<br/>反向代理"| API
+    API -->|"EF Core<br/>Npgsql"| PG
 
     style browser fill:transparent,stroke:#555,color:#999
     style server fill:transparent,stroke:#555,color:#999
@@ -58,24 +58,24 @@ graph TB
 ```mermaid
 graph TB
     subgraph api["API 層 — MyWorkItem.Api"]
-        AuthCtrl["AuthController\n登入、取得目前使用者"]
-        WICtrl["WorkItemsController\n列表、詳情、確認、撤銷"]
-        AdminCtrl["AdminWorkItemsController\nCRUD 操作"]
+        AuthCtrl["AuthController<br/>登入、取得目前使用者"]
+        WICtrl["WorkItemsController<br/>列表、詳情、確認、撤銷"]
+        AdminCtrl["AdminWorkItemsController<br/>CRUD 操作"]
         JWTMiddleware["JWT 認證中介層"]
     end
 
     subgraph app["應用層 — MyWorkItem.Application"]
-        AuthSvc["AuthService\n登入驗證、使用者查詢"]
-        WISvc["WorkItemService\n列表（含個人狀態）\n確認/撤銷邏輯"]
-        AdminSvc["AdminWorkItemService\n新增、修改、刪除"]
-        IAppDb["IAppDbContext\n介面"]
+        AuthSvc["AuthService<br/>登入驗證、使用者查詢"]
+        WISvc["WorkItemService<br/>列表（含個人狀態）<br/>確認/撤銷邏輯"]
+        AdminSvc["AdminWorkItemService<br/>新增、修改、刪除"]
+        IAppDb["IAppDbContext<br/>介面"]
     end
 
     subgraph infra["基礎設施層 — MyWorkItem.Infrastructure"]
-        DbCtx["AppDbContext\nEF Core DbContext"]
-        TokenSvc["TokenService\nJWT 產生"]
-        PwdHash["BcryptPasswordHasher\n密碼雜湊"]
-        SeedData["SeedData\n示範帳號與項目"]
+        DbCtx["AppDbContext<br/>EF Core DbContext"]
+        TokenSvc["TokenService<br/>JWT 產生"]
+        PwdHash["BcryptPasswordHasher<br/>密碼雜湊"]
+        SeedData["SeedData<br/>示範帳號與項目"]
     end
 
     subgraph domain["領域層 — MyWorkItem.Domain"]
@@ -162,13 +162,13 @@ sequenceDiagram
 
 ```mermaid
 graph TB
-    Browser["瀏覽器\n:3080"]
+    Browser["瀏覽器<br/>:3080"]
 
     subgraph docker["Docker Compose"]
         direction TB
-        Web["web — Nginx\n靜態檔案 · 反向代理\n:80"]
-        Api["api — .NET 10\nASP.NET Core Web API\n:8080"]
-        DB[("db — PostgreSQL 18\n持久化 Volume\n:5432")]
+        Web["web — Nginx<br/>靜態檔案 · 反向代理<br/>:80"]
+        Api["api — .NET 10<br/>ASP.NET Core Web API<br/>:8080"]
+        DB[("db — PostgreSQL 18<br/>持久化 Volume<br/>:5432")]
     end
 
     Browser -->|"http://localhost:3080"| Web
